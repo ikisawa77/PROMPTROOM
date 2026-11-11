@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0b0b0b" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%230b0b0b'/%3E%3Crect x='12' y='12' width='16' height='40' fill='%23ff4a1c'/%3E%3Crect x='34' y='12' width='18' height='16' fill='%23f2efe7'/%3E%3Crect x='34' y='34' width='18' height='18' fill='%23d8ff4f'/%3E%3C/svg%3E"
+    />
+    <title>PROMPTROOM — Local Control Center</title>
+    <link rel="stylesheet" href="/control.css" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="cc-brand">
+          <svg class="cc-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <rect width="32" height="32" rx="4" fill="#f2efe7" />
+            <rect x="6" y="6" width="9" height="20" fill="#ff4a1c" />
+            <rect x="18" y="6" width="8" height="8" fill="#0b0b0b" />
+            <rect x="18" y="17" width="8" height="9" fill="#0b0b0b" />
+          </svg>
+          <div>
+            <div class="cc-name">PROMPTROOM<sup>®</sup></div>
+            <div class="cc-sub">LOCAL CONTROL CENTER</div>
+          </div>
+        </div>
+
+        <div class="topbar-mid">
+          <span class="local-badge"><i></i> LOCALHOST ONLY</span>
+          <span id="clock" class="clock">--:--:--</span>
+        </div>
+
+        <div class="topbar-actions">
+          <a id="appLink" class="top-link disabled" href="#" target="_blank" rel="noreferrer">
+            เปิดเว็บไซต์ <span>↗</span>
+          </a>
+          <a class="top-link" href="/api/health" target="_blank" rel="noreferrer">CC HEALTH</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="status-hero" id="statusHero">
+        <div class="status-main">
+          <div class="status-kicker">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusLabel">STOPPED</span>
+            <span class="kicker-sep">/</span>
+            <span id="statusMode">PRODUCTION</span>
+            <span class="kicker-sep">/</span>
+            <span id="sseStatus" class="sse-status">LOG STREAM: CONNECTING</span>
+          </div>
+          <h1 id="statusTitle">เซิร์ฟเวอร์หยุดอยู่</h1>
+          <p id="statusDesc">กด Start เพื่อรันเซิร์ฟเวอร์บนเครื่องนี้ แล้วเปิดเว็บไซต์เพื่อทดสอบก่อนขึ้นโฮสต์จริง</p>
+
+          <div class="hero-meta">
+            <div>
+              <span>UPTIME</span>
+              <strong id="uptime">—</strong>
+            </div>
+            <div class="meta-wide">
+              <span>APP URL</span>
+              <strong id="appUrl">http://localhost:8787</strong>
+            </div>
+            <div>
+              <span>PID</span>
+              <strong id="pid">—</strong>
+            </div>
+            <div>
+              <span>MEMORY</span>
+              <strong id="memory">—</strong>
+            </div>
+            <div>
+              <span>PORT</span>
+              <strong id="port">8787</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-controls">
+          <div class="controls-row">
+            <button type="button" id="startBtn" class="cc-btn primary">
+              <span class="btn-icon">▶</span>
+              <span class="btn-copy"><strong>Start</strong><em>เปิดเซิร์ฟเวอร์</em></span>
+            </button>
+            <button type="button" id="restartBtn" class="cc-btn">
+              <span class="btn-icon">↻</span>
+              <span class="btn-copy"><strong>Restart</strong><em>รีสตาร์ท</em></span>
+            </button>
+          </div>
+          <div class="controls-row">
+            <button type="button" id="stopBtn" class="cc-btn">
+              <span class="btn-icon">■</span>
+              <span class="btn-copy"><strong>Stop</strong><em>หยุดอย่างนุ่มนวล</em></span>
+            </button>
+            <button type="button" id="forceBtn" class="cc-btn danger">
+              <span class="btn-icon">✕</span>
+              <span class="btn-copy"><strong>Force Stop</strong><em>บังคับปิดทั้ง process tree</em></span>
+            </button>
+          </div>
+
+          <div class="mode-row">
+            <span class="mini-label">MODE</span>
+            <div class="mode-switch" role="group" aria-label="โหมดเซิร์ฟเวอร์">
+              <button type="button" data-mode="prod" class="is-active">PROD · 8787</button>
+              <button type="button" data-mode="dev">DEV · 5173</button>
+            </div>
+          </div>
+
+          <label class="auto-row">
+            <input type="checkbox" id="autoRestart" />
+            <span class="checkbox"></span>
+            <span>Auto-restart เมื่อเซิร์ฟเวอร์ล้ม (สูงสุด 3 ครั้ง)</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="metric-grid">
+        <article class="metric">
+          <div class="metric-head"><span>API HEALTH</span><i class="metric-signal" id="apiSignal"></i></div>
+          <strong id="apiHealth">—</strong>
+          <p id="apiHealthNote">ยังไม่ได้ตรวจสอบ</p>
+        </article>
+        <article class="metric">
+          <div class="metric-head"><span>PROCESS MEMORY</span><span class="metric-unit">MB</span></div>
+          <strong id="memMetric">—</strong>
+          <p>หน่วยความจำของโปรเซสที่ยึดพอร์ต</p>
+        </article>
+        <article class="metric">
+          <div class="metric-head"><span>PORT OWNER</span><span class="metric-unit">PID</span></div>
+          <strong id="portMetric">—</strong>
+          <p id="portNote">ไม่พบโปรเซสบนพอร์ต 8787</p>
+        </article>
+        <article class="metric">
+          <div class="metric-head"><span>PRODUCTION BUILD</span><span class="metric-unit">DIST</span></div>
+          <strong id="buildMetric">—</strong>
+          <p id="buildNote">ยังไม่ได้ตรวจสอบ</p>
+        </article>
+      </section>
+
+      <div class="workspace-grid">
+        <section class="panel logs-panel">
+          <header class="panel-head">
+            <div class="panel-title">
+              <span class="panel-kicker">01 / MONITOR</span>
+              <h2>Live server logs</h2>
+            </div>
+            <div class="log-tools">
+              <label class="log-filter">
+                <span>⌕</span>
+                <input id="logFilter" type="text" placeholder="กรอง log…" />
+              </label>
+              <button type="button" id="autoscrollBtn" class="mini-btn is-active" title="เลื่อนตาม log ใหม่">
+                AUTO-SCROLL
+              </button>
+              <a class="mini-btn" href="/api/logs/download">DOWNLOAD</a>
+              <button type="button" id="clearLogsBtn" class="mini-btn">CLEAR</button>
+            </div>
+          </header>
+          <div class="log-stream" id="logStream" role="log" aria-live="polite">
+            <div class="log-empty" id="logEmpty">กำลังเชื่อมต่อ log stream…</div>
+          </div>
+          <footer class="log-foot">
+            <span><i class="status-dot"></i> <span id="logCount">0</span> lines in view</span>
+            <span>STDOUT · STDERR · CONTROL</span>
+          </footer>
+        </section>
+
+        <aside class="side-stack">
+          <section class="panel checks-panel">
+            <header class="panel-head compact">
+              <div class="panel-title">
+                <span class="panel-kicker">02 / PRE-FLIGHT</span>
+                <h2>ความพร้อมก่อน deploy</h2>
+              </div>
+              <button type="button" id="refreshChecks" class="mini-btn">RE-RUN</button>
+            </header>
+            <div class="checks" id="checks">
+              <div class="check-skeleton">กำลังตรวจสอบ…</div>
+            </div>
+            <div class="checks-foot">
+              <span id="checksScore">—</span>
+              <a href="/api/checks" target="_blank" rel="noreferrer">ดู JSON ↗</a>
+            </div>
+          </section>
+
+          <section class="panel actions-panel">
+            <header class="panel-head compact">
+              <div class="panel-title">
+                <span class="panel-kicker">03 / BUILD &amp; DEPLOY</span>
+                <h2>เครื่องมือ</h2>
+              </div>
+            </header>
+            <div class="action-grid">
+              <button type="button" id="buildBtn" class="action-btn">
+                <span>⚙</span>
+                <strong>Build production</strong>
+                <em>npm run build</em>
+              </button>
+              <a id="appCardLink" class="action-btn" href="#" target="_blank" rel="noreferrer">
+                <span>↗</span>
+                <strong>Open website</strong>
+                <em id="appCardUrl">http://localhost:8787</em>
+              </a>
+              <button type="button" id="killPortBtn" class="action-btn danger">
+                <span>⨯</span>
+                <strong>Kill port owner</strong>
+                <em>แก้พอร์ตถูกยึด</em>
+              </button>
+              <a class="action-btn" href="/api/checks" target="_blank" rel="noreferrer">
+                <span>⌁</span>
+                <strong>Preflight JSON</strong>
+                <em>ตรวจสอบทั้งหมด</em>
+              </a>
+            </div>
+            <div class="deploy-note">
+              <span>DEPLOY PATH</span>
+              <code id="deployPath">D:\PE-Web</code>
+              <p>Build แล้วอัพโหลด <strong>dist/</strong> พร้อมรัน Express server บนโฮสต์ที่รองรับ Node.js 20+</p>
+            </div>
+          </section>
+
+          <section class="panel history-panel">
+            <header class="panel-head compact">
+              <div class="panel-title">
+                <span class="panel-kicker">04 / ACTIVITY</span>
+                <h2>ประวัติคำสั่ง</h2>
+              </div>
+            </header>
+            <div class="history" id="history">
+              <div class="check-skeleton">ยังไม่มีคำสั่ง</div>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <footer class="cc-footer">
+        <span>PROMPTROOM CONTROL CENTER · LOCAL ONLY · 127.0.0.1</span>
+        <span>ฟอนต์ Prompt ทั้งหน้าจอ · ข้อมูลไม่ออกจากเครื่อง</span>
+        <span id="lastAction">—</span>
+      </footer>
+    </main>
+
+    <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+    <script src="/control.js" defer></script>
+  </body>
+</html>
