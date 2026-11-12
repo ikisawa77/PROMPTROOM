@@ -618,6 +618,6 @@ Released under the **GNU General Public License v3.0** — ดูรายละ
 
 **PROMPTROOM®** — brief in, system out.
 
-สร้างโดยทีมครีเอทีฟ สำหรับทีมครีเอทีฟ · ภาษาไทย 100%
+สร้างโดยทีมครีเอทีฟ iParnZ MDSeed.net สำหรับทีมครีเอทีฟ · ภาษาไทย 100%
 
 </div>
