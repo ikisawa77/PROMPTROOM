@@ -4089,11 +4089,14 @@ input[type='range']::-webkit-slider-thumb {
 
   .mobile-menu {
     display: block;
-    position: fixed;
-    inset: 106px 0 0;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
     z-index: 55;
     background: var(--paper);
     padding: 22px 32px 30px;
+    max-height: calc(100vh - 66px);
     overflow-y: auto;
     border-top: 1px solid var(--line);
   }
@@ -4338,7 +4341,9 @@ input[type='range']::-webkit-slider-thumb {
   }
 
   .mobile-menu {
-    inset: 98px 0 0;
+    inset: auto;
+    top: 100%;
+    max-height: calc(100vh - 66px);
     padding: 18px 20px 26px;
   }
 

@@ -17,6 +17,7 @@ import { TEMPLATES } from '../../shared/templates'
 import { generatePrompt } from '../../shared/engine'
 import type { PromptInput, Stats } from '../../shared/types'
 import { api, STUDIO_STORAGE_KEY } from '../lib/api'
+import { useAuth } from '../lib/auth'
 import ArtTile from '../components/ArtTile'
 import ToolIcon from '../components/ToolIcon'
 
@@ -91,14 +92,19 @@ const FAQ = [
 
 export default function Home() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [stats, setStats] = useState<Stats | null>(null)
   const [demoStyle, setDemoStyle] = useState('editorial')
   const [demoLight, setDemoLight] = useState('soft-window')
   const [demoPalette, setDemoPalette] = useState('warm-earth')
 
   useEffect(() => {
+    if (!user) {
+      setStats(null)
+      return
+    }
     api.stats().then(setStats).catch(() => setStats(null))
-  }, [])
+  }, [user])
 
   const demoInput: PromptInput = useMemo(
     () => ({
@@ -170,7 +176,7 @@ export default function Home() {
             </div>
             <div className="hero-meta">
               <span>
-                <Check size={13} /> ไม่ต้องสมัคร
+                <Check size={13} /> เข้าสู่ระบบเพื่อเริ่ม
               </span>
               <span>
                 <Check size={13} /> ฟรีทุกฟีเจอร์
@@ -227,8 +233,8 @@ export default function Home() {
       <section className="stats-strip">
         <div className="container stats-grid">
           <div className="stat">
-            <strong>{stats ? String(stats.saved).padStart(2, '0') : '—'}</strong>
-            <span>พรอมป์ในคลัง</span>
+            <strong>{stats ? String(stats.saved).padStart(2, '0') : '00'}</strong>
+            <span>{user ? 'พรอมป์ในคลัง' : 'พร้อมเริ่มเก็บ'}</span>
           </div>
           <div className="stat">
             <strong>{TOOLS.length}</strong>
@@ -632,9 +638,9 @@ export default function Home() {
             </h2>
           </div>
           <div className="cta-side">
-            <p>ไม่ต้องสมัคร ไม่ต้องจำ syntax เปิด Studio แล้วสร้างพรอมป์แรกได้ในสองนาที</p>
+            <p>สมัครฟรี ไม่ต้องจำ syntax เปิด Studio แล้วสร้างพรอมป์แรกได้ในสองนาที</p>
             <Link to="/studio" className="btn btn-black btn-lg">
-              เข้า Studio
+              {user ? 'เข้า Studio' : 'สมัครฟรีแล้วเริ่ม'}
               <ArrowUpRight size={18} />
             </Link>
           </div>

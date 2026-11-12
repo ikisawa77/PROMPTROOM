@@ -43,19 +43,48 @@ export default function App() {
               </RedirectIfAuthed>
             }
           />
-          <Route
-            element={
-              <RequireAuth>
-                <Layout />
-              </RequireAuth>
-            }
-          >
+          <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/studio" element={<Studio />} />
-            <Route path="/templates" element={<Templates />} />
-            <Route path="/library" element={<Library />} />
-            <Route path="/brands" element={<Brands />} />
-            <Route path="/guide" element={<Guide />} />
+            <Route
+              path="/studio"
+              element={
+                <RequireAuth>
+                  <Studio />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/templates"
+              element={
+                <RequireAuth>
+                  <Templates />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/library"
+              element={
+                <RequireAuth>
+                  <Library />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/brands"
+              element={
+                <RequireAuth>
+                  <Brands />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/guide"
+              element={
+                <RequireAuth>
+                  <Guide />
+                </RequireAuth>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

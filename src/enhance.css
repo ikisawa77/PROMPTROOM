@@ -144,6 +144,12 @@
 .nav-cta:hover svg {
   transform: translate(1px, -1px);
 }
+.nav-login {
+  height: 36px;
+  padding: 0 12px;
+  gap: 6px;
+  font-size: 11.5px;
+}
 
 /* ---------- ticker dot ---------- */
 
@@ -3202,6 +3208,34 @@
   margin-left: auto;
   flex-shrink: 0;
 }
+.mobile-guest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--paper-3);
+}
+.mobile-guest > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mobile-guest strong {
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.mobile-guest em {
+  font-size: 9.5px;
+  font-style: normal;
+  color: var(--muted);
+}
+.mobile-guest .btn {
+  flex-shrink: 0;
+}
 
 /* illustration */
 .illustration {
@@ -3253,6 +3287,11 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 55;
     padding: 14px 20px 22px;
     border-top: 1px solid var(--line);
     background: var(--paper-3);
@@ -3376,6 +3415,7 @@
 
 @media (max-width: 860px) {
   .nav-cta,
+  .nav-login,
   .nav-icon-btn {
     display: none;
   }

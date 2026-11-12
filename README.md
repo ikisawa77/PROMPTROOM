@@ -297,11 +297,13 @@ npm run dev
 
 ### วิธีทำงาน
 
-1. ผู้ใช้สมัครหรือเข้าสู่ระบบผ่าน `/auth`
-2. เซิร์ฟเวอร์ hash รหัสผ่านด้วย **scrypt** (N=16384, r=8, p=1) พร้อม salt 16 bytes
-3. ออก session token แบบสุ่ม 32 bytes และเก็บเฉพาะ **SHA-256 hash** ในฐานข้อมูล
-4. ส่ง cookie `pr_session` แบบ `HttpOnly; SameSite=Lax; Path=/; Max-Age=30d`
-5. ทุก request ที่เข้า `/api` ถูกตรวจสิทธิ์ด้วย middleware `requireAuth`
+1. หน้าแรก `/` เปิดให้ทุกคนดูได้โดยไม่ต้องเข้าสู่ระบบ
+2. เมื่อเข้า Studio, Templates, Library, Brands หรือ Guide ระบบจะพาไป `/auth` พร้อมจำหน้าที่ตั้งใจจะไป
+3. ผู้ใช้สมัครหรือเข้าสู่ระบบผ่าน `/auth` แล้วกลับไปยังหน้าที่ต้องการต่อทันที
+4. เซิร์ฟเวอร์ hash รหัสผ่านด้วย **scrypt** (N=16384, r=8, p=1) พร้อม salt 16 bytes
+5. ออก session token แบบสุ่ม 32 bytes และเก็บเฉพาะ **SHA-256 hash** ในฐานข้อมูล
+6. ส่ง cookie `pr_session` แบบ `HttpOnly; SameSite=Lax; Path=/; Max-Age=30d`
+7. ทุก request ที่เข้า `/api` ถูกตรวจสิทธิ์ด้วย middleware `requireAuth`
 
 ### การแยกข้อมูล
 
