@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/banner01.svg" alt="PROMPTROOM — Creative & Art Direction Prompt Engine" width="100%" />
+<img src="docs/banner-2026.svg" alt="PROMPTROOM — Creative & Art Direction Prompt Engine" width="100%" />
 
 # PROMPTROOM<sup>®</sup>
 
@@ -616,7 +616,7 @@ Released under the **GNU General Public License v3.0** — ดูรายละ
 
 <div align="center">
 
-<img src="docs/banner01.svg" alt="PROMPTROOM" width="100%" />
+<img src="docs/banner-2026.svg" alt="PROMPTROOM" width="100%" />
 
 **PROMPTROOM®** — brief in, system out.
 
