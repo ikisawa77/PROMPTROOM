@@ -4,6 +4,8 @@
 
 # PROMPTROOM<sup>®</sup>
 
+Team : www.mdseeed.net
+
 **ห้องเครื่องพรอมป์สำหรับทีมครีเอทีฟ** — เปลี่ยนบรีฟภาษาไทยให้เป็นพรอมป์ที่มีโครงสร้าง พร้อมกำกับภาพ ซีรีส์ วิดีโอ แคมเปญ และงานดีไซน์
 
 [![React](https://img.shields.io/badge/React-18-111111?style=flat-square&logo=react&logoColor=61DAFB)](https://react.dev)
