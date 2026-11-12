@@ -17,6 +17,7 @@ import {
   insertPrompt,
   listBrands,
   listPrompts,
+  seedWorkspace,
   updateBrand,
   updatePrompt,
 } from './db'
@@ -28,8 +29,23 @@ import {
   readBrand,
   readGenerate,
   readLimit,
+  readLogin,
   readPromptPatch,
+  readRegister,
 } from './validate'
+import {
+  authenticate,
+  clearSessionCookie,
+  createSession,
+  createUser,
+  deleteSession,
+  readCookie,
+  requireAuth,
+  scopedWorkspace,
+  SESSION_COOKIE,
+  setSessionCookie,
+  userFromToken,
+} from './auth'
 
 export interface CreateAppOptions {
   /** โฟลเดอร์ build ของ frontend (ค่าเริ่มต้น: ./dist) */
@@ -57,7 +73,8 @@ function handle(fn: (req: Request, res: Response) => unknown): RequestHandler {
 }
 
 function workspaceOf(req: Request): string {
-  return normalizeWorkspace(req.get('x-workspace'))
+  const base = normalizeWorkspace(req.get('x-workspace'))
+  return req.user ? scopedWorkspace(req.user.id, base) : base
 }
 
 function fail(res: Response, status: number, message: string) {
@@ -98,6 +115,12 @@ export function createApp(options: CreateAppOptions = {}) {
     max: 12,
     message: 'เรียก AI Boost ถี่เกินไป — รอสักครู่แล้วลองอีกครั้ง',
   })
+  const authLimiter = rateLimit({
+    name: 'auth',
+    windowMs: 60_000,
+    max: 20,
+    message: 'พยายามเข้าสู่ระบบถี่เกินไป — รอสักครู่แล้วลองอีกครั้ง',
+  })
 
   app.get('/api/health', (_req, res) => {
     res.json({
@@ -114,6 +137,49 @@ export function createApp(options: CreateAppOptions = {}) {
   app.get('/api/templates', (_req, res) => {
     res.json({ templates: TEMPLATES })
   })
+
+  app.post(
+    '/api/auth/register',
+    authLimiter,
+    handle((req, res) => {
+      const payload = readRegister(req.body)
+      const user = createUser(payload)
+      seedWorkspace(scopedWorkspace(user.id, 'demo'))
+      const token = createSession(user.id)
+      setSessionCookie(res, token)
+      res.status(201).json({ user })
+    }),
+  )
+
+  app.post(
+    '/api/auth/login',
+    authLimiter,
+    handle((req, res) => {
+      const { email, password } = readLogin(req.body)
+      const user = authenticate(email, password)
+      if (!user) throw new ApiError(401, 'อีเมลหรือรหัสผ่านไม่ถูกต้อง')
+      const token = createSession(user.id)
+      setSessionCookie(res, token)
+      res.json({ user })
+    }),
+  )
+
+  app.post('/api/auth/logout', (req, res) => {
+    const token = readCookie(req, SESSION_COOKIE)
+    if (token) deleteSession(token)
+    clearSessionCookie(res)
+    res.json({ ok: true })
+  })
+
+  app.get('/api/auth/me', (req, res) => {
+    const token = readCookie(req, SESSION_COOKIE)
+    const user = token ? userFromToken(token) : null
+    if (!user) clearSessionCookie(res)
+    res.json({ user })
+  })
+
+  // ทุก endpoint ใต้ /api หลังจากนี้ต้องเข้าสู่ระบบก่อน
+  app.use('/api', requireAuth)
 
   app.get('/api/stats', (_req, res) => {
     res.json(getStats(workspaceOf(_req), aiEnabled()))

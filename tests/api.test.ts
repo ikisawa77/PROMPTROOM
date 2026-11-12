@@ -18,6 +18,7 @@ const { closeDatabase } = await import('../server/db')
 const app = createApp({ dist: path.join(tempDir, 'no-dist') })
 let server: Server
 let base = ''
+let cookie = ''
 
 function url(pathname: string) {
   return `${base}${pathname}`
@@ -25,11 +26,12 @@ function url(pathname: string) {
 
 async function api(
   pathname: string,
-  options: RequestInit & { workspace?: string } = {},
+  options: RequestInit & { workspace?: string; noAuth?: boolean } = {},
 ): Promise<{ status: number; body: any; headers: Headers }> {
   const headers = new Headers(options.headers)
   headers.set('Content-Type', 'application/json')
   if (options.workspace) headers.set('x-workspace', options.workspace)
+  if (cookie && !options.noAuth && !headers.has('cookie')) headers.set('cookie', cookie)
   const response = await fetch(url(pathname), { ...options, headers })
   const text = await response.text()
   let body: unknown = null
@@ -60,6 +62,19 @@ before(async () => {
       resolve()
     })
   })
+
+  const registered = await api('/api/auth/register', {
+    method: 'POST',
+    noAuth: true,
+    body: JSON.stringify({
+      name: 'Test Director',
+      email: 'director@promptroom.test',
+      password: 'promptroom123',
+    }),
+  })
+  assert.equal(registered.status, 201)
+  cookie = (registered.headers.get('set-cookie') || '').split(';')[0]
+  assert.match(cookie, /pr_session=/)
 })
 
 after(async () => {
@@ -72,19 +87,84 @@ after(async () => {
   }
 })
 
-test('GET /api/health returns ok', async () => {
-  const { status, body } = await api('/api/health')
+test('GET /api/health stays public and reports ok', async () => {
+  const { status, body } = await api('/api/health', { noAuth: true })
   assert.equal(status, 200)
   assert.equal(body.ok, true)
   assert.equal(body.service, 'promptroom')
   assert.equal(body.aiEnabled, false)
 })
 
-test('GET /api/templates returns the full template set', async () => {
-  const { status, body } = await api('/api/templates')
+test('GET /api/templates stays public', async () => {
+  const { status, body } = await api('/api/templates', { noAuth: true })
   assert.equal(status, 200)
   assert.ok(Array.isArray(body.templates))
   assert.ok(body.templates.length >= 6)
+})
+
+test('protected routes reject anonymous requests with 401', async () => {
+  for (const pathname of ['/api/prompts', '/api/brands', '/api/stats']) {
+    const { status, body } = await api(pathname, { noAuth: true })
+    assert.equal(status, 401, pathname)
+    assert.match(body.error, /เข้าสู่ระบบ/)
+  }
+})
+
+test('registration validates email and password length', async () => {
+  const badEmail = await api('/api/auth/register', {
+    method: 'POST',
+    noAuth: true,
+    body: JSON.stringify({ name: 'Test', email: 'not-an-email', password: 'longenough1' }),
+  })
+  assert.equal(badEmail.status, 400)
+  assert.match(badEmail.body.error, /อีเมล/)
+
+  const shortPassword = await api('/api/auth/register', {
+    method: 'POST',
+    noAuth: true,
+    body: JSON.stringify({ name: 'Test', email: 'short@promptroom.test', password: '123' }),
+  })
+  assert.equal(shortPassword.status, 400)
+  assert.match(shortPassword.body.error, /8 ตัวอักษร/)
+
+  const duplicate = await api('/api/auth/register', {
+    method: 'POST',
+    noAuth: true,
+    body: JSON.stringify({
+      name: 'Duplicate',
+      email: 'director@promptroom.test',
+      password: 'promptroom123',
+    }),
+  })
+  assert.equal(duplicate.status, 409)
+  assert.match(duplicate.body.error, /ถูกใช้งานแล้ว/)
+})
+
+test('login succeeds with the right password and fails otherwise', async () => {
+  const wrong = await api('/api/auth/login', {
+    method: 'POST',
+    noAuth: true,
+    body: JSON.stringify({ email: 'director@promptroom.test', password: 'wrong-password' }),
+  })
+  assert.equal(wrong.status, 401)
+  assert.match(wrong.body.error, /ไม่ถูกต้อง/)
+
+  const success = await api('/api/auth/login', {
+    method: 'POST',
+    noAuth: true,
+    body: JSON.stringify({ email: 'DIRECTOR@promptroom.test', password: 'promptroom123' }),
+  })
+  assert.equal(success.status, 200)
+  assert.equal(success.body.user.email, 'director@promptroom.test')
+  assert.ok(success.headers.get('set-cookie'))
+})
+
+test('GET /api/auth/me returns the session user', async () => {
+  const me = await api('/api/auth/me')
+  assert.equal(me.status, 200)
+  assert.equal(me.body.user.email, 'director@promptroom.test')
+  assert.equal(me.body.user.name, 'Test Director')
+  assert.equal(me.body.user.password, undefined)
 })
 
 test('POST /api/generate validates the brief with a Thai message', async () => {
@@ -99,7 +179,7 @@ test('POST /api/generate validates the brief with a Thai message', async () => {
 test('POST /api/generate rejects malformed JSON with 400', async () => {
   const response = await fetch(url('/api/generate'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', cookie },
     body: '{"input": ',
   })
   assert.equal(response.status, 400)
@@ -182,7 +262,7 @@ test('prompt lifecycle: create, list, read, patch, duplicate, delete', async () 
   assert.equal(missing.status, 404)
 })
 
-test('workspace header isolates prompts between teams', async () => {
+test('workspace header isolates prompts inside one account', async () => {
   const created = await api('/api/generate', {
     method: 'POST',
     workspace: 'team-a',
@@ -197,6 +277,40 @@ test('workspace header isolates prompts between teams', async () => {
 
   const crossRead = await api(`/api/prompts/${created.body.id}`, { workspace: 'team-b' })
   assert.equal(crossRead.status, 404)
+})
+
+test('a second account cannot read the first account data even with the same workspace', async () => {
+  const created = await api('/api/generate', {
+    method: 'POST',
+    workspace: 'shared-client',
+    body: JSON.stringify({ input: validInput }),
+  })
+  assert.equal(created.status, 201)
+
+  const second = await api('/api/auth/register', {
+    method: 'POST',
+    noAuth: true,
+    body: JSON.stringify({
+      name: 'Second User',
+      email: 'second@promptroom.test',
+      password: 'anotherpass123',
+    }),
+  })
+  assert.equal(second.status, 201)
+  const secondCookie = (second.headers.get('set-cookie') || '').split(';')[0]
+
+  const list = await api('/api/prompts', {
+    workspace: 'shared-client',
+    headers: { cookie: secondCookie },
+  })
+  assert.equal(list.status, 200)
+  assert.ok(list.body.prompts.every((item: { id: string }) => item.id !== created.body.id))
+
+  const read = await api(`/api/prompts/${created.body.id}`, {
+    workspace: 'shared-client',
+    headers: { cookie: secondCookie },
+  })
+  assert.equal(read.status, 404)
 })
 
 test('brand lifecycle validates names and normalises palettes', async () => {
@@ -251,6 +365,13 @@ test('brand lifecycle validates names and normalises palettes', async () => {
   assert.equal(missing.status, 404)
 })
 
+test('new accounts start with seeded sample prompts and brands', async () => {
+  const list = await api('/api/prompts', { workspace: 'demo' })
+  assert.ok(list.body.prompts.length >= 4)
+  const brands = await api('/api/brands', { workspace: 'demo' })
+  assert.ok(brands.body.brands.length >= 3)
+})
+
 test('stats reflect saved prompts and brands', async () => {
   const stats = await api('/api/stats', { workspace: 'test-lifecycle' })
   assert.equal(stats.status, 200)
@@ -258,7 +379,7 @@ test('stats reflect saved prompts and brands', async () => {
   assert.equal(typeof stats.body.aiEnabled, 'boolean')
 })
 
-test('unknown API routes return a Thai 404 payload', async () => {
+test('unknown API routes return a Thai 404 payload when authenticated', async () => {
   const { status, body } = await api('/api/does-not-exist')
   assert.equal(status, 404)
   assert.match(body.error, /ไม่พบ API/)

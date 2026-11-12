@@ -90,6 +90,36 @@ export function readBrand(body: unknown, options: { partial?: boolean } = {}): P
   return patch
 }
 
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+
+export interface RegisterPayload {
+  name: string
+  email: string
+  password: string
+}
+
+export function readRegister(body: unknown): RegisterPayload {
+  const payload = record(body)
+  const name = str(payload.name, 80)
+  const email = str(payload.email, 200).toLowerCase()
+  const password = typeof payload.password === 'string' ? payload.password : ''
+
+  if (name.length < 2) throw new ApiError(400, 'กรุณากรอกชื่ออย่างน้อย 2 ตัวอักษร')
+  if (!EMAIL.test(email)) throw new ApiError(400, 'รูปแบบอีเมลไม่ถูกต้อง')
+  if (password.length < 8) throw new ApiError(400, 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร')
+  if (password.length > 200) throw new ApiError(400, 'รหัสผ่านยาวเกินไป (ไม่เกิน 200 ตัวอักษร)')
+
+  return { name, email, password }
+}
+
+export function readLogin(body: unknown): { email: string; password: string } {
+  const payload = record(body)
+  const email = str(payload.email, 200).toLowerCase()
+  const password = typeof payload.password === 'string' ? payload.password : ''
+  if (!email || !password) throw new ApiError(400, 'กรุณากรอกอีเมลและรหัสผ่าน')
+  return { email, password }
+}
+
 export interface BoostPayload {
   masterPrompt: string
   toolPrompt: string

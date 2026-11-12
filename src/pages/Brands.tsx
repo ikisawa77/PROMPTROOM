@@ -16,6 +16,7 @@ import type { BrandKit } from '../../shared/types'
 import { api } from '../lib/api'
 import { copyText } from '../lib/utils'
 import { useToast } from '../components/Toast'
+import Illustration from '../components/Illustration'
 import { Field, TextArea, TextInput } from '../components/Fields'
 import Modal from '../components/ui/Modal'
 import Popover from '../components/ui/Popover'
@@ -231,7 +232,7 @@ export default function Brands() {
           </div>
         ) : brands.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-mark">◇</div>
+            <Illustration scene="bottle" className="empty-illustration" />
             <h2>ยังไม่มี Brand Kit</h2>
             <p>เริ่มจากแบรนด์ที่ทำงานบ่อยที่สุด แล้วใช้ซ้ำได้ทุกพรอมป์</p>
             <button type="button" className="btn btn-dark" onClick={openCreate}>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   Activity,
   ArrowUpRight,
@@ -10,6 +10,7 @@ import {
   Layers,
   LayoutGrid,
   Library as LibraryIcon,
+  LogOut,
   Menu,
   Palette,
   Search,
@@ -20,6 +21,7 @@ import {
 import CommandPalette from './CommandPalette'
 import Popover from './ui/Popover'
 import WorkspaceSwitcher from './WorkspaceSwitcher'
+import { useAuth } from '../lib/auth'
 
 const NAV = [
   { to: '/studio', label: 'Studio', icon: Wand2 },
@@ -75,6 +77,14 @@ export default function Layout() {
   const [open, setOpen] = useState(false)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
+  const initials = (user?.name || user?.email || 'PR').trim().slice(0, 2).toUpperCase()
+
+  const signOut = async () => {
+    await logout()
+    navigate('/auth', { replace: true })
+  }
 
   useEffect(() => {
     setOpen(false)
@@ -160,6 +170,51 @@ export default function Layout() {
             <div className="nav-workspace">
               <WorkspaceSwitcher compact />
             </div>
+
+            <Popover
+              label="บัญชีผู้ใช้"
+              align="end"
+              width={286}
+              className="user-pop"
+              trigger={(props) => (
+                <button
+                  type="button"
+                  className="user-trigger"
+                  aria-label={`บัญชีของ ${user?.name ?? 'ผู้ใช้'}`}
+                  title={user?.email}
+                  {...props}
+                >
+                  <span className="user-avatar">{initials}</span>
+                </button>
+              )}
+            >
+              {(close) => (
+                <div className="user-panel">
+                  <header className="pop-head">
+                    <div>
+                      <span className="pop-kicker">ACCOUNT</span>
+                      <h4>{user?.name}</h4>
+                    </div>
+                    <span className="user-avatar large">{initials}</span>
+                  </header>
+                  <p className="user-email">{user?.email}</p>
+                  <div className="user-links">
+                    <Link to="/library" onClick={close}>
+                      <LibraryIcon size={14} /> คลังพรอมป์ของฉัน
+                    </Link>
+                    <Link to="/brands" onClick={close}>
+                      <Palette size={14} /> Brand Kits
+                    </Link>
+                    <Link to="/guide" onClick={close}>
+                      <BookOpen size={14} /> คู่มือการใช้งาน
+                    </Link>
+                  </div>
+                  <button type="button" className="user-logout" onClick={signOut}>
+                    <LogOut size={14} /> ออกจากระบบ
+                  </button>
+                </div>
+              )}
+            </Popover>
 
             <Popover
               label="ข้อมูลระบบ"
@@ -251,6 +306,16 @@ export default function Layout() {
           <div className="mobile-menu">
             <div className="mobile-menu-top">
               <WorkspaceSwitcher />
+              <div className="mobile-user">
+                <span className="user-avatar">{initials}</span>
+                <span>
+                  <strong>{user?.name}</strong>
+                  <em>{user?.email}</em>
+                </span>
+                <button type="button" className="icon-btn" onClick={signOut} aria-label="ออกจากระบบ">
+                  <LogOut size={15} />
+                </button>
+              </div>
               <button type="button" className="mobile-search" onClick={() => setPaletteOpen(true)}>
                 <Search size={16} /> ค้นหาคำสั่งและหน้า
                 <kbd>⌘K</kbd>

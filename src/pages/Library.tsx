@@ -23,6 +23,7 @@ import { STYLES, TASKS } from '../../shared/options'
 import { api, STUDIO_STORAGE_KEY } from '../lib/api'
 import { copyLink, copyText, downloadText, formatDate, resultToMarkdown, slugify } from '../lib/utils'
 import ArtTile from '../components/ArtTile'
+import Illustration from '../components/Illustration'
 import ResultView from '../components/ResultView'
 import { useToast } from '../components/Toast'
 import Modal from '../components/ui/Modal'
@@ -374,7 +375,10 @@ export default function Library() {
           </div>
         ) : items.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-mark">{query || task || favorite ? '∅' : '◇'}</div>
+            <Illustration
+              scene={query || task || favorite ? 'search' : 'stack'}
+              className="empty-illustration"
+            />
             <h2>{query || task || favorite ? 'ไม่พบพรอมป์ในเงื่อนไขนี้' : 'ยังไม่มีพรอมป์ในคลัง'}</h2>
             <p>
               {query || task || favorite

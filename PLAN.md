@@ -37,6 +37,18 @@
 - Toast ใหม่ (tone/close/progress), scroll progress, skip link, mobile dock, reduced-motion, print styles
 - Code-splitting หน้า Templates/Guide ด้วย `React.lazy` + Suspense
 
+### รอบ Authentication (เสร็จแล้ว)
+
+- ระบบสมัครสมาชิก / เข้าสู่ระบบ / ออกจากระบบ พร้อมหน้า `/auth` แบบ split-screen
+- เก็บรหัสผ่านด้วย scrypt + salt, session cookie `pr_session` (HttpOnly, SameSite=Lax, 30 วัน)
+- ทุก API ใต้ `/api` ยกเว้น health/templates/auth ต้องเข้าสู่ระบบ
+- ข้อมูลแยกตามบัญชีด้วย workspace scope `${user.id}:${workspace}` — ทดสอบ cross-account แล้ว
+- บัญชีใหม่ได้พรอมป์ตัวอย่าง 4 รายการและ Brand Kit 3 ชุด
+- Toast/401 handling, user menu, mobile user card และ auth splash
+- เพิ่ม illustration 5 แบบใช้ใน empty state และหน้า auth
+- ชุดทดสอบเพิ่มเป็น 19 รายการ ครอบคลุม auth, isolation, validation และ rate limit
+- README ใหม่พร้อม banner และ screenshot gallery ใน `docs/`
+
 ### ยังไม่ยืนยัน
 
 - Start / Stop / Restart / Force Stop / Build ผ่าน Control Center รอบสุดท้ายบนเครื่องนี้ (ฟีเจอร์ครบแล้ว)
@@ -94,7 +106,7 @@
 
 ## 3. เฟส B — เก็บงานคุณภาพ
 
-- [x] เพิ่มชุดทดสอบ API ด้วย `node:test` + fetch ตรง (`tests/api.test.ts`, 13 tests)
+- [x] เพิ่มชุดทดสอบ API ด้วย `node:test` + fetch ตรง (`tests/api.test.ts`, 19 tests รวม auth)
 - [x] เพิ่ม validation ของ request body ให้ตอบ 400 พร้อมข้อความภาษาไทย (`server/validate.ts`)
 - [x] จำกัดขนาด request (1MB → 413) และเพิ่ม rate limit สำหรับ `/api/generate` (30/นาที), `/api/generate/preview` (60/นาที), `/api/boost` (12/นาที)
 - [x] ตรวจว่า AI Boost ล้มเหลวแล้ว fallback กลับผลลัพธ์ deterministic (แสดง hint ใน ResultView)
@@ -128,7 +140,7 @@
 3. **Brand kit** — ✅ palette, tone, audience, keywords, avoid ใช้เป็น context
 4. **Multi-language output** — บางส่วน: สลับ EN/TH ใน tool prompt
 5. **Image reference board** — ยังไม่ทำ
-6. **Team workspace** — ✅ แยกด้วย `x-workspace` + switcher (ยังไม่มีสิทธิ์)
+6. **Team workspace** — ✅ แยกด้วย `x-workspace` + switcher และ scope ตามบัญชี (ยังไม่มี roles/permissions)
 7. **Prompt scoring** — มี readiness score ใน preview แล้ว
 8. **Batch generate** — ยังไม่ทำ
 9. **Share link** — ✅ คัดลอกลิงก์ deep link ไป Library
@@ -157,6 +169,8 @@
 | เปิด Control Center สาธารณะ | ใครก็สั่งปิดเซิร์ฟเวอร์ได้ | bind `127.0.0.1` เท่านั้น |
 | พอร์ตชนกันในเครื่อง | start ไม่ขึ้น | Kill port owner หรือเปลี่ยน `PORT`/`APP_PORT` |
 | ใช้ AI Boost โดยไม่มีคีย์ | ปุ่มคืน 503 | แจ้งใน UI ว่าเป็นฟีเจอร์เสริม |
+| Deploy HTTPS แต่ไม่ตั้ง `COOKIE_SECURE=1` | cookie ไม่มี Secure attribute | ตั้ง `COOKIE_SECURE=1` ใน `.env` production |
+| ไม่มี persistent disk | ข้อมูลผู้ใช้และ session หายเมื่อ redeploy | mount volume ที่ `DATA_DIR` |
 
 ---
 
@@ -172,7 +186,7 @@ $env:PORT=8791; $env:HOST='127.0.0.1'; npm start
 ผลล่าสุด (11 พ.ย. 2026)
 
 - `npm run typecheck`: ผ่าน
-- `npm test`: 13/13 ผ่าน
+- `npm test`: 19/19 ผ่าน
 - `npm run build`: ผ่าน — main JS ~399 KB (gzip 116 KB), CSS ~106 KB (gzip 19.6 KB), แยก chunk Templates/Guide
 - production smoke: `/api/health` ok, SPA deep links 200, `POST /api/generate` 201, malformed JSON 400, `/api/boost` 503 (ไม่มีคีย์)
 - เบราว์เซอร์ 1440px และ 390px: ทุกหน้าเรนเดอร์ ไม่มี console error

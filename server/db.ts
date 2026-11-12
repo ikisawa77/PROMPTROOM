@@ -326,8 +326,10 @@ export function deleteBrand(workspace: string, id: string): boolean {
   return result.changes > 0
 }
 
-function seed() {
-  const existing = db.prepare("SELECT COUNT(*) as c FROM prompts WHERE workspace = 'demo'").get() as { c: number }
+export function seedWorkspace(workspace: string) {
+  const existing = db.prepare('SELECT COUNT(*) as c FROM prompts WHERE workspace = ?').get(workspace) as {
+    c: number
+  }
   if (existing.c > 0) return
 
   const now = Date.now()
@@ -338,8 +340,8 @@ function seed() {
     const input = { ...DEFAULT_INPUT, ...template.input } as PromptInput
     const result = generatePrompt(input)
     const createdAt = new Date(now - index * 86400000 - 3600000).toISOString()
-    insertPrompt('demo', input, result, {
-      id: `seed-${templateId}`,
+    insertPrompt(workspace, input, result, {
+      id: `seed-${workspace}-${templateId}`,
       createdAt,
       favorite: index === 0 || index === 2,
     })
@@ -378,9 +380,10 @@ function seed() {
   brands.forEach((brand, index) => {
     db.prepare(
       `INSERT INTO brands (id, workspace, name, industry, audience, tone, palette_json, keywords, avoid, created_at)
-       VALUES (?, 'demo', ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).run(
-      `seed-brand-${index + 1}`,
+      `seed-brand-${workspace}-${index + 1}`,
+      workspace,
       brand.name,
       brand.industry,
       brand.audience,
@@ -393,4 +396,4 @@ function seed() {
   })
 }
 
-seed()
+seedWorkspace('demo')

@@ -43,6 +43,7 @@ import { useToast } from '../components/Toast'
 import Popover from '../components/ui/Popover'
 import Modal from '../components/ui/Modal'
 import ArtTile from '../components/ArtTile'
+import Illustration from '../components/Illustration'
 import ToolIcon from '../components/ToolIcon'
 
 const STEPS = [
@@ -1014,7 +1015,7 @@ export default function Studio() {
       >
         {brands.length === 0 ? (
           <div className="empty-state compact">
-            <div className="empty-mark">◇</div>
+            <Illustration scene="bottle" className="empty-illustration is-small" />
             <h2>ยังไม่มี Brand Kit</h2>
             <p>สร้าง Brand Kit เพื่อเติมกลุ่มเป้าหมาย พาเลตต์ และข้อห้ามให้อัตโนมัติ</p>
             <Link to="/brands" className="btn btn-dark">

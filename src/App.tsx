@@ -1,10 +1,12 @@
 import { Suspense, lazy, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import Layout from './components/Layout'
+import { RedirectIfAuthed, RequireAuth } from './components/RouteGuards'
 import Home from './pages/Home'
 import Studio from './pages/Studio'
 import Library from './pages/Library'
 import Brands from './pages/Brands'
+import AuthPage from './pages/Auth'
 import NotFound from './pages/NotFound'
 
 const Templates = lazy(() => import('./pages/Templates'))
@@ -33,7 +35,21 @@ export default function App() {
       <ScrollToTop />
       <Suspense fallback={<PageFallback />}>
         <Routes>
-          <Route element={<Layout />}>
+          <Route
+            path="/auth"
+            element={
+              <RedirectIfAuthed>
+                <AuthPage />
+              </RedirectIfAuthed>
+            }
+          />
+          <Route
+            element={
+              <RequireAuth>
+                <Layout />
+              </RequireAuth>
+            }
+          >
             <Route path="/" element={<Home />} />
             <Route path="/studio" element={<Studio />} />
             <Route path="/templates" element={<Templates />} />

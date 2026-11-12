@@ -1,249 +1,430 @@
-# PROMPTROOM® — Creative & Art Direction Prompt Engine
+<div align="center">
 
-เว็บแอปfullstack ภาษาไทยสำหรับสร้าง **พรอมป์ตงานสร้างสรรค์และ art direction** ตั้งแต่ภาพเดี่ยว ซีรีส์ภาพ วิดีโอ แคมเปญ งานดีไซน์ ไปจนถึงการดีบักและแปลงพรอมป์ตข้ามเครื่องมือ AI
+<img src="docs/banner.svg" alt="PROMPTROOM — Creative & Art Direction Prompt Engine" width="100%" />
 
-- Frontend: Vite + React 18 + React Router 6 + TypeScript
-- Backend: Express 4 + `node:sqlite` (ไม่ต้องคอมไพล์ native module)
-- Prompt engine ใช้ร่วมกันทั้ง frontend และ backend (`shared/`) — ผลลัพธ์ deterministic
-- ฟอนต์ **Prompt** ทั้งเว็บ รวมถึงหน้า Control Center และบล็อกโค้ด
-- Local Control Center สำหรับ start / stop / restart / force-stop / ดู log / build ก่อนขึ้นโฮสต์จริง
+# PROMPTROOM<sup>®</sup>
+
+**ห้องเครื่องพรอมป์สำหรับทีมครีเอทีฟ** — เปลี่ยนบรีฟภาษาไทยให้เป็นพรอมป์ที่มีโครงสร้าง พร้อมกำกับภาพ ซีรีส์ วิดีโอ แคมเปญ และงานดีไซน์
+
+[![React](https://img.shields.io/badge/React-18-111111?style=flat-square&logo=react&logoColor=61DAFB)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-111111?style=flat-square&logo=typescript&logoColor=3178C6)](https://www.typescriptlang.org)
+[![Node](https://img.shields.io/badge/Node.js-24%2B-111111?style=flat-square&logo=node.js&logoColor=5FA04E)](https://nodejs.org)
+[![Express](https://img.shields.io/badge/Express-4-111111?style=flat-square&logo=express&logoColor=f2efe7)](https://expressjs.com)
+[![SQLite](https://img.shields.io/badge/SQLite-node%3Asqlite-111111?style=flat-square&logo=sqlite&logoColor=44A8D0)](https://nodejs.org/api/sqlite.html)
+[![Tests](https://img.shields.io/badge/tests-19%20passing-d8ff4f?style=flat-square&labelColor=111111)](#-การทดสอบ)
+[![License](https://img.shields.io/badge/license-GPL--3.0-ff4a1c?style=flat-square)](LICENSE)
+
+[เริ่มใช้งาน](#-เริ่มใช้งานใน-3-นาที) · [ฟีเจอร์](#-ฟีเจอร์) · [ภาพหน้าจอ](#-ภาพหน้าจอ) · [API](#-api-reference) · [Deploy](#-ขึ้น-production) · [Roadmap](#-roadmap)
+
+</div>
 
 ---
 
-## ฟีเจอร์หลัก
+## ทำไมต้อง PROMPTROOM?
 
-| หน้า | รายละเอียด |
+ทีมครีเอทีฟเสียเวลาไปกับการเขียนพรอมป์ซ้ำ ๆ และจำไม่ได้ว่าเวอร์ชันไหนคือเวอร์ชันที่ดีที่สุด PROMPTROOM รวมทุกอย่างไว้ในที่เดียว:
+
+- **บรีฟไทย → พรอมป์อังกฤษพร้อมใช้** โดยไม่ต้องเดาโครงสร้าง
+- **Master prompt + creative routes + shot list + negative prompt** ในครั้งเดียว
+- **คลังพรอมป์และ Brand Kit ส่วนตัว** แยกตามบัญชี กลับมาแก้ต่อได้ทุกเครื่อง
+- **พารามิเตอร์เฉพาะเครื่องมือ** เช่น Midjourney, FLUX, Firefly, Runway, Sora
+
+> [!NOTE]
+> เว็บทำงานได้ครบทุกฟีเจอร์โดยไม่ต้องมี API key ของ AI ใด ๆ — prompt engine เป็น deterministic และทำงานในเครื่องทั้งหมด ส่วน **AI Boost** เป็นฟีเจอร์เสริมสำหรับขัดเกลาถ้อยคำเท่านั้น
+
+---
+
+## ✨ ภาพหน้าจอ
+
+<div align="center">
+
+### หน้าเข้าสู่ระบบ / สมัครสมาชิก
+<img src="docs/screenshots/auth.jpg" alt="หน้าเข้าสู่ระบบ PROMPTROOM" width="100%" />
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/home.jpg" alt="หน้า Home" /><br /><sub><b>Home</b> — ภาพรวมและทางเข้า Studio</sub></td>
+    <td width="50%"><img src="docs/screenshots/studio.jpg" alt="หน้า Studio" /><br /><sub><b>Studio</b> — วิซาร์ด 3 ขั้น พร้อม live preview</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/library.jpg" alt="หน้าคลังพรอมป์" /><br /><sub><b>Library</b> — ค้นหา กรอง และจัดการพรอมป์ที่บันทึกไว้</sub></td>
+    <td width="50%"><img src="docs/screenshots/templates.jpg" alt="หน้าเทมเพลต" /><br /><sub><b>Templates</b> — 10 จุดเริ่มต้นจากงานจริง</sub></td>
+  </tr>
+</table>
+
+</div>
+
+---
+
+## 🚀 ฟีเจอร์
+
+### Prompt Engine
+
+| ความสามารถ | รายละเอียด |
 | --- | --- |
-| `/` Home | ภาพรวมเครื่องมือ ทางลัดเข้าสตูดิโอ และพรอมป์ตตัวอย่าง |
-| `/studio` | วิซาร์ดสร้างพรอมป์ต 3 ขั้นตอน พร้อมตัวเลือกงาน, เครื่องมือ, สไตล์, พาเลตต์, อัตราส่วน |
-| `/templates` | เทมเพลตคัดสรร 10 ชุด ใช้เป็นจุดเริ่มต้นได้ทันที |
-| `/library` | คลังพรอมป์ตที่บันทึกไว้ใน SQLite (ค้นหา, ทำซ้ำ, ลบ) |
-| `/brands` | แบรนด์โน้ต/โทนเสียง ที่ใช้เป็น context ของงาน |
-| `/guide` | คู่มือการเขียนพรอมป์ตและโครงสร้างผลลัพธ์ |
+| **Master Prompt** | โครงสร้าง `ROLE / GOAL / CONTEXT / VISUAL DIRECTION / DELIVERABLES / CONSTRAINTS / CHECKS` |
+| **Creative Routes** | 3–4 ทิศทางภาพที่แตกต่างกัน ให้เลือกหรือทดลองต่อ |
+| **Shot List** | ตารางช็อตสำหรับซีรีส์/วิดีโอ พร้อมเฟรม ขนาดภาพ และ negative prompt |
+| **Tool Presets** | แปลงเป็นพารามิเตอร์ของ Midjourney, FLUX, Firefly, Ideogram, Stable Diffusion, DALL·E, Runway, Kling, Sora และ generic |
+| **Readiness Score** | ประเมินความพร้อมของบรีฟก่อนนำไปใช้ |
+| **Deterministic** | ผลลัพธ์ซ้ำได้ ทำงานได้แม้ออฟไลน์ และไม่ส่งข้อมูลออกนอกเซิร์ฟเวอร์ |
 
-### UX ที่เพิ่มเข้ามา
+### พื้นที่ทำงาน
 
-- Command palette (`Ctrl/Cmd + K`) ค้นหาหน้า เทมเพลต เครื่องมือ และคำสั่ง
-- Workspace switcher แยกคลังตามทีม/ลูกค้า พร้อมจำรายการล่าสุด
-- Export พรอมป์ตเป็น Markdown / JSON / CSV shot list / Plain text
-- Library: ค้นหา กรอง เรียงลำดับ มุมมอง grid/list รายการโปรด ปุ่มจัดการ และ deep link `?prompt=`
-- Templates: preview พรอมป์ตที่ระบบสร้างจริงก่อนใช้
-- Mobile dock, scroll progress, skeleton loading, empty/error states และ reduced-motion support
+- **Studio** — วิซาร์ด 3 ขั้น (บรีฟ → ทิศทางภาพ → สรุป), autosave draft, randomize, template/brand picker, `Ctrl/Cmd + Enter`
+- **Library** — ค้นหา กรองตามงาน/สไตล์/รายการโปรด, เรียงลำดับ, grid/list, duplicate, rename, download, deep link `?prompt=<id>`
+- **Templates** — 10 เทมเพลตคัดสรร พร้อม preview พรอมป์จริงก่อนใช้งาน
+- **Brands** — Brand Kit (โทนเสียง, กลุ่มเป้าหมาย, พาเลตต์, คำห้าม) ใช้เป็น context อัตโนมัติ
+- **Guide** — คู่มือเขียนพรอมป์พร้อม scroll-spy และปุ่มคัดลอกตัวอย่าง
+- **Command Palette** — `Ctrl/Cmd + K` ค้นหาหน้า เทมเพลต เครื่องมือ และคำสั่ง
+- **Workspace Switcher** — แยกคลังตามทีม/ลูกค้าภายในบัญชีเดียว
 
-ผลลัพธ์จากสตูดิโอประกอบด้วย
+### UX / UI
 
-- Master prompt โครงสร้าง `ROLE / GOAL / CONTEXT / VISUAL DIRECTION / DELIVERABLES / CONSTRAINTS / CHECKS`
-- 3–4 creative routes ให้เลือกทิศทาง
-- ตารางซีรีส์/ช็อต (shot list) พร้อม negative prompt
-- พารามิเตอร์เฉพาะเครื่องมือ (Midjourney, DALL·E, Stable Diffusion, Firefly, Runway, Sora ฯลฯ)
-- ชุดตรวจสอบคุณภาพ (checks) และ JSON สำหรับนำไปใช้ต่อ
+- ดีไซน์ cream / ink / accent พร้อมฟอนต์ **Prompt** ทั้งเว็บ
+- Popover และ Modal ที่รองรับ keyboard, focus trap และ collision detection
+- Toast, skeleton loading, empty state, error state และ progress bar
+- Responsive ถึง 390px พร้อม mobile dock
+- รองรับ `prefers-reduced-motion`, print styles, skip link และ ARIA labels
+- Export เป็น **Markdown / JSON / CSV shot list / TXT** และคัดลอกลิงก์แชร์
+
+### Authentication & Security
+
+- สมัครสมาชิก / เข้าสู่ระบบด้วยอีเมลและรหัสผ่าน
+- รหัสผ่าน hash ด้วย **scrypt** + salt แบบสุ่ม
+- Session cookie `pr_session` แบบ **HttpOnly, SameSite=Lax, 30 วัน**
+- ทุก API ใต้ `/api` (ยกเว้น health/templates/auth) ต้องเข้าสู่ระบบ
+- ข้อมูลแยกตามบัญชีจริงด้วย workspace scope `${user.id}:${workspace}`
+- บัญชีใหม่ได้พรอมป์ตัวอย่าง 4 รายการและ Brand Kit 3 ชุดทันที
+- Rate limit, validation ภาษาไทย, body limit 1MB และ security headers
 
 ---
 
-## โครงสร้างโปรเจกต์
+## 🧠 ผลลัพธ์ที่ได้
 
+ทุกครั้งที่กดสร้าง ระบบจะคืนผลลัพธ์ครบชุด:
+
+```text
+ROLE            Creative director / art director
+GOAL            ภาพสินค้าเซรั่มจากพืชพรรณไทยสำหรับแคมเปญเปิดตัว
+CONTEXT         แบรนด์ Siam Botanica · กลุ่มเป้าหมายผู้รักสกินแคร์ธรรมชาติ
+VISUAL DIRECTION editorial · warm earth · soft window light · 85mm
+DELIVERABLES    ภาพหลัก 1 ภาพ + 3 creative routes + shot list 4 ช็อต
+CONSTRAINTS     ห้ามข้อความบนภาพ · ห้ามโลโก้เกิน 1 จุด · พื้นที่ปลอดภัยสำหรับครอป
+CHECKS          ความสม่ำเสมอของแสง · สีผิว · วัสดุ · composition
 ```
-D:\PE-Web
-├─ control-center/        # Local Control Center (Express + HTML/CSS/JS)
-│  ├─ server.mjs
-│  └─ public/
-├─ data/                  # SQLite + runtime state (ไม่ commit)
-│  └─ promptroom.db
-├─ dist/                  # production build (ไม่ commit)
-├─ server/                # Express API + static SPA
-│  ├─ index.ts            # entry point / start server
-│  ├─ app.ts              # createApp() + routes + error handling
-│  ├─ validate.ts         # request validation (ข้อความภาษาไทย)
-│  ├─ rate-limit.ts       # in-memory rate limiter
-│  ├─ db.ts               # SQLite queries + seed
-│  └─ normalize.ts
-├─ tests/
-│  └─ api.test.ts         # node:test integration tests
-├─ scripts/
-│  └─ backup-db.mjs       # consistent SQLite backup (VACUUM INTO)
-├─ shared/                # prompt engine, options, templates ที่ใช้ร่วมกัน
-│  ├─ engine.ts
-│  ├─ options.ts
-│  ├─ templates.ts
-│  └─ types.ts
-├─ src/                   # React app
-│  ├─ pages/
-│  ├─ components/
-│  ├─ lib/
-│  ├─ styles.css          # design system เดิม
-│  └─ enhance.css         # UX enhancement layer
-├─ ecosystem.config.cjs   # PM2 process manager
+
+พร้อม:
+
+- **3–4 creative routes** ที่มีแนวคิดและพารามิเตอร์ต่างกัน
+- **Shot table** สำหรับซีรีส์และวิดีโอ
+- **Negative prompt** แยกตามเครื่องมือ
+- **Tool parameters** เช่น `--ar 4:5 --v 6.1 --style raw --stylize 150`
+- **JSON** สำหรับนำไปต่อกับระบบอื่น
+
+---
+
+## 🛠️ Tech Stack
+
+| ชั้น | เทคโนโลยี |
+| --- | --- |
+| Frontend | React 18, React Router 6, TypeScript, Vite 6 |
+| Styling | CSS design system (`styles.css`) + enhancement layer (`enhance.css`) |
+| Icons / Artwork | Lucide React + deterministic inline SVG |
+| Backend | Express 4, TypeScript (tsx), Node.js 24+ |
+| Database | SQLite ผ่าน `node:sqlite` (ไม่ต้องคอมไพล์ native module) |
+| Auth | scrypt + session cookie (HttpOnly, SameSite=Lax) |
+| Validation | custom validators ภาษาไทย |
+| Tests | `node:test` + `tsx` (integration ผ่าน HTTP จริง) |
+| Deploy | Docker, PM2, systemd, Caddy/Nginx |
+| Local ops | Control Center (start/stop/restart/build/logs) |
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart LR
+  subgraph Browser["Browser"]
+    UI["React 18 SPA<br/>Studio · Library · Brands"]
+    CP["Command Palette<br/>Workspace Switcher"]
+  end
+
+  subgraph Server["Node.js 24 · Express 4"]
+    AUTH["Auth<br/>scrypt · session cookie"]
+    API["REST API"]
+    VAL["Validation<br/>Rate limit"]
+    ENG["Prompt Engine<br/>shared/"]
+  end
+
+  DB[("SQLite<br/>users · sessions<br/>prompts · brands")]
+  AI["OpenAI-compatible API<br/>(optional AI Boost)"]
+
+  UI -->|"fetch + cookie"| AUTH
+  UI --> API
+  CP --> API
+  AUTH --> DB
+  API --> VAL --> ENG
+  ENG --> API
+  API --> DB
+  API -.->|"เฉพาะเมื่อเปิด AI Boost"| AI
+```
+
+จุดสำคัญ:
+
+- `shared/` ถูกใช้ร่วมกันทั้ง frontend และ backend ทำให้ preview กับผลลัพธ์จริงตรงกัน
+- Frontend ถูกเสิร์ฟจาก Express เดียวกันใน production (SPA fallback รองรับ deep link)
+- ฐานข้อมูลเป็นไฟล์เดียว สำรองง่ายด้วย `VACUUM INTO`
+
+---
+
+## 📁 โครงสร้างโปรเจกต์
+
+```text
+PROMPTROOM/
+├─ shared/                  # prompt engine, options, templates, types
+│  ├─ engine.ts             # สร้าง master prompt, routes, shots, checks
+│  ├─ options.ts            # งาน, เครื่องมือ, สไตล์, แสง, พาเลตต์, เลนส์
+│  └─ templates.ts          # 10 เทมเพลตเริ่มต้น
+├─ server/
+│  ├─ index.ts              # entry point
+│  ├─ app.ts                # createApp(), routes, error handling
+│  ├─ auth.ts               # scrypt, session, requireAuth, scoped workspace
+│  ├─ db.ts                 # schema, queries, seed
+│  ├─ validate.ts           # request validation (ข้อความไทย)
+│  ├─ rate-limit.ts         # in-memory rate limiter
+│  ├─ normalize.ts
+│  └─ env.ts
+├─ src/
+│  ├─ pages/                # Home, Studio, Templates, Library, Brands, Guide, Auth, 404
+│  ├─ components/           # Layout, ResultView, Popover, Modal, Artwork, Illustration…
+│  ├─ lib/                  # api client, auth context, utils
+│  ├─ styles.css            # design system
+│  └─ enhance.css           # UX/UI enhancement layer
+├─ tests/api.test.ts        # 19 integration tests
+├─ control-center/          # Local Control Center (bind 127.0.0.1 เท่านั้น)
+├─ scripts/backup-db.mjs    # SQLite backup
+├─ docs/                    # banner + screenshots
 ├─ Dockerfile
-├─ index.html
-├─ package.json
-├─ vite.config.ts
-└─ tsconfig.json
+├─ ecosystem.config.cjs     # PM2
+├─ .env.example
+└─ package.json
 ```
 
 ---
 
-## สิ่งที่ต้องมี
+## ⚡ เริ่มใช้งานใน 3 นาที
 
-- **Node.js 24 ขึ้นไป** (แนะนำ 24 หรือ 26) — ต้องมี `node:sqlite`
+### สิ่งที่ต้องมี
+
+- **Node.js 24 หรือใหม่กว่า** (ต้องมี `node:sqlite`)
 - npm 10+
-- Windows / macOS / Linux
+- Windows, macOS หรือ Linux
 
-ตรวจเวอร์ชัน
-
-```powershell
-node -v
+```bash
+node -v   # ต้องขึ้น v24.x ขึ้นไป
 npm -v
 ```
 
----
+### ติดตั้ง
 
-## เริ่มใช้งานครั้งแรก
-
-```powershell
-cd D:\PE-Web
-Copy-Item .env.example .env
+```bash
+git clone https://github.com/ikisawa77/PROMPTROOM.git
+cd PROMPTROOM
 npm install
+cp .env.example .env
 npm run build
 npm start
 ```
 
-เปิดเว็บที่ **http://localhost:8787**
+บน Windows PowerShell ใช้ `Copy-Item .env.example .env` แทน `cp`
 
-> ถ้าไม่สร้าง `.env` ก็รันได้ ระบบจะใช้ค่าเริ่มต้น `PORT=8787` และปิด AI Boost
+เปิด **http://localhost:8787** แล้วสมัครสมาชิกเพื่อเริ่มใช้งาน
+
+> [!TIP]
+> ไม่ต้องสร้าง `.env` ก็รันได้ ระบบจะใช้ `PORT=8787` และปิด AI Boost ให้อัตโนมัติ
+
+### โหมดพัฒนา
+
+```bash
+npm run dev
+```
+
+เปิด **http://localhost:5173** — Vite proxied `/api` ไปที่ `localhost:8787` พร้อม hot reload ทั้งสองฝั่ง
 
 ---
 
-## คำสั่งที่ใช้บ่อย
+## ⚙️ Environment Variables
+
+| ตัวแปร | ค่าเริ่มต้น | คำอธิบาย |
+| --- | --- | --- |
+| `PORT` | `8787` | พอร์ตของเว็บแอป |
+| `HOST` | `0.0.0.0` | `127.0.0.1` = รับเฉพาะเครื่องนี้ |
+| `NODE_ENV` | `production` | โหมดการทำงาน |
+| `DATA_DIR` | `./data` | โฟลเดอร์เก็บ SQLite (ต้องเป็น persistent disk) |
+| `DB_PATH` | `$DATA_DIR/promptroom.db` | ระบุไฟล์ฐานข้อมูลตรง ๆ |
+| `COOKIE_SECURE` | `0` | ตั้ง `1` เมื่อให้บริการผ่าน HTTPS |
+| `RATE_LIMIT_DISABLED` | `0` | ตั้ง `1` เพื่อปิด rate limit (เฉพาะ test) |
+| `OPENAI_API_KEY` | — | เปิด AI Boost (ไม่ใส่ก็ใช้แอปได้ครบ) |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | รองรับ OpenAI-compatible endpoint |
+| `OPENAI_MODEL` | `gpt-4o-mini` | โมเดลที่ใช้ boost |
+| `CONTROL_PORT` | `9090` | พอร์ต Local Control Center |
+| `APP_PORT` | `8787` | พอร์ตที่ Control Center ใช้ตรวจสุขภาพ |
+
+---
+
+## 📜 Scripts
 
 | คำสั่ง | ทำอะไร |
 | --- | --- |
-| `npm run dev` | รัน API (tsx watch) + Vite พร้อมกันที่ 5173 |
-| `npm run dev:server` | รันเฉพาะ API ที่ 8787 |
-| `npm run dev:client` | รันเฉพาะ Vite ที่ 5173 |
-| `npm run build` | typecheck แล้วสร้าง `dist/` |
-| `npm start` | เสิร์ฟ production ที่ 8787 (ต้องมี `dist/`) |
-| `npm test` | รัน API integration tests ด้วย `node:test` |
+| `npm run dev` | รัน API + Vite พร้อมกัน (port 8787 / 5173) |
+| `npm run dev:server` | รันเฉพาะ API (tsx watch) |
+| `npm run dev:client` | รันเฉพาะ Vite |
+| `npm run build` | typecheck แล้ว build ลง `dist/` |
+| `npm start` | เสิร์ฟ production จาก `dist/` |
+| `npm test` | รัน integration tests 19 รายการ |
 | `npm run typecheck` | ตรวจ TypeScript อย่างเดียว |
-| `npm run backup` | สำรอง SQLite ไปที่ `data/backups/` (เก็บ 14 ชุดล่าสุด) |
+| `npm run backup` | สำรอง SQLite ไป `data/backups/` (เก็บ 14 ชุด) |
 | `npm run control` | เปิด Local Control Center ที่ 9090 |
 
-หรือดับเบิลคลิก `start-control-center.bat` / `start-app.bat` บน Windows
+บน Windows ดับเบิลคลิก `start-app.bat` หรือ `start-control-center.bat` ได้เลย
 
 ---
 
-## Local Control Center
+## 🔐 Authentication & Security
 
-เปิดหน้าต่างใหม่แล้วรัน
+### วิธีทำงาน
 
-```powershell
-npm run control
+1. ผู้ใช้สมัครหรือเข้าสู่ระบบผ่าน `/auth`
+2. เซิร์ฟเวอร์ hash รหัสผ่านด้วย **scrypt** (N=16384, r=8, p=1) พร้อม salt 16 bytes
+3. ออก session token แบบสุ่ม 32 bytes และเก็บเฉพาะ **SHA-256 hash** ในฐานข้อมูล
+4. ส่ง cookie `pr_session` แบบ `HttpOnly; SameSite=Lax; Path=/; Max-Age=30d`
+5. ทุก request ที่เข้า `/api` ถูกตรวจสิทธิ์ด้วย middleware `requireAuth`
+
+### การแยกข้อมูล
+
+Workspace ของผู้ใช้แต่ละคนถูก scope เป็น:
+
+```text
+<user.id>:<workspace-name>
 ```
 
-เข้า **http://localhost:9090** (ผูกกับ `127.0.0.1` เท่านั้น)
+แม้ผู้ใช้สองคนจะตั้งชื่อ workspace เหมือนกัน (`shared-client`) ข้อมูลก็ไม่ปะปนกัน และการอ่านพรอมป์ข้ามบัญชีจะได้ `404`
 
-สิ่งที่ทำได้
+### สิ่งที่ควรทำเมื่อขึ้น production
 
-- **Start** เปิดเซิร์ฟเวอร์โหมด Production (`npm start`) หรือ Development (`npm run dev`)
-- **Stop** ปิดอย่างนุ่มนวล แล้วรอให้ process tree ออก
-- **Restart** หยุดแล้วเริ่มใหม่
-- **Force Stop** ใช้ `taskkill /PID <pid> /T /F` ปิดทั้ง tree ทันที
-- **Build production** รัน `npm run build` และสตรีม log
-- **Kill port owner** เคลียร์โปรเซสที่ยึดพอร์ต 8787
-- **Live logs** ผ่าน SSE พร้อมตัวกรอง, auto-scroll, ดาวน์โหลด, ล้าง log
-- **Pre-flight** ตรวจ Node, npm, dist, สิทธิ์เขียน data, พอร์ต, health API, `.env`, AI key
-- **Auto-restart** เมื่อโปรเซสล้ม สูงสุด 3 ครั้ง
-- **Activity history** บันทึกทุกคำสั่งพร้อมเวลา
-
-### พอร์ต
-
-| ส่วน | ค่าเริ่มต้น | เปลี่ยนได้ด้วย |
-| --- | --- | --- |
-| เว็บแอป | 8787 | `PORT`, `APP_PORT` |
-| Control Center | 9090 | `CONTROL_PORT` |
-| Vite dev | 5173 | `vite.config.ts` |
-
-> ถ้าเปลี่ยน `PORT` ต้องตั้ง `APP_PORT` ให้ตรงกันด้วย เพื่อให้ Control Center ตรวจสุขภาพถูกพอร์ต
+- เปิด HTTPS และตั้ง `COOKIE_SECURE=1`
+- อย่า deploy `control-center/` สู่สาธารณะ (มันสั่ง start/stop process ได้)
+- ตั้ง backup ฐานข้อมูลรายวัน
+- จำกัด body size ที่ reverse proxy ให้สอดคล้องกับ 1MB
 
 ---
 
-## AI Boost (ไม่บังคับ)
+## 🔌 API Reference
 
-เว็บทำงานได้ครบโดยไม่ใช้ AI Boost ถ้าต้องการเปิด ให้ใส่ค่าใน `.env`
+endpoint ที่เกี่ยวกับข้อมูลจะใช้ header `x-workspace` เพื่อเลือก workspace (ค่าเริ่มต้น `demo`) และถูก scope ตามบัญชีผู้ใช้อีกชั้นหนึ่ง
 
-```dotenv
-OPENAI_API_KEY=sk-...
-OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=gpt-4o-mini
-```
-
-รองรับ API ที่เข้ากันได้กับ OpenAI (เช่น OpenRouter, Groq, Ollama ที่เปิด OpenAI-compatible endpoint) โดยเปลี่ยน `OPENAI_BASE_URL`
-
----
-
-## API ย่อ
-
-ทุก request ที่เกี่ยวกับ workspace จะส่ง header `x-workspace` (ค่าเริ่มต้น `demo`)
+### Public
 
 | Method | Path | ใช้ทำอะไร |
 | --- | --- | --- |
-| GET | `/api/health` | สถานะเซิร์ฟเวอร์, uptime, AI enabled |
-| GET | `/api/stats` | สถิติคลังพรอมป์ต/แบรนด์ |
-| GET | `/api/templates` | รายการเทมเพลต |
-| POST | `/api/generate` | สร้างพรอมป์ตแบบเต็มและบันทึก |
-| POST | `/api/generate/preview` | สร้างพรอมป์ตแบบไม่บันทึก |
-| GET | `/api/prompts` | ค้นหาคลังพรอมป์ต |
-| GET | `/api/prompts/:id` | ดูรายการเดียว |
-| PATCH | `/api/prompts/:id` | เปลี่ยนชื่อ / favorite |
-| DELETE | `/api/prompts/:id` | ลบ |
-| POST | `/api/prompts/:id/duplicate` | ทำซ้ำ |
-| GET | `/api/brands` | รายการแบรนด์ |
-| POST | `/api/brands` | เพิ่มแบรนด์ |
-| PATCH | `/api/brands/:id` | แก้ไขแบรนด์ |
-| DELETE | `/api/brands/:id` | ลบแบรนด์ |
-| POST | `/api/boost` | ปรับพรอมป์ตด้วย AI (ต้องมีคีย์) |
+| `GET` | `/api/health` | สถานะเซิร์ฟเวอร์, uptime, AI enabled |
+| `GET` | `/api/templates` | รายการเทมเพลตทั้งหมด |
+| `POST` | `/api/auth/register` | สมัครสมาชิกและออก session |
+| `POST` | `/api/auth/login` | เข้าสู่ระบบ |
+| `POST` | `/api/auth/logout` | ออกจากระบบและล้าง cookie |
+| `GET` | `/api/auth/me` | ข้อมูลผู้ใช้ปัจจุบัน (คืน `{ user: null }` เมื่อยังไม่ login) |
 
-### Validation และ rate limit
+### ต้องเข้าสู่ระบบ
 
-- ทุก endpoint ที่รับ body จะตอบ `400` พร้อมข้อความภาษาไทยเมื่อข้อมูลไม่ถูกต้อง
-- JSON ที่ผิดรูปแบบตอบ `400` และ body เกิน 1MB ตอบ `413`
-- `/api/generate` 30 ครั้ง/นาที, `/api/generate/preview` 60 ครั้ง/นาที, `/api/boost` 12 ครั้ง/นาที (แยกตาม IP + workspace)
-- เมื่อเกินจะตอบ `429` พร้อม header `Retry-After`; ปิดด้วย `RATE_LIMIT_DISABLED=1` สำหรับการทดสอบ
+| Method | Path | ใช้ทำอะไร |
+| --- | --- | --- |
+| `GET` | `/api/stats` | สถิติคลังพรอมป์และแบรนด์ |
+| `POST` | `/api/generate` | สร้างพรอมป์แบบเต็มและบันทึก |
+| `POST` | `/api/generate/preview` | สร้างพรอมป์แบบไม่บันทึก |
+| `GET` | `/api/prompts` | ค้นหาคลัง (`?q=&task=&favorite=`) |
+| `GET` | `/api/prompts/:id` | ดูรายการเดียว |
+| `PATCH` | `/api/prompts/:id` | เปลี่ยนชื่อ / favorite |
+| `DELETE` | `/api/prompts/:id` | ลบ |
+| `POST` | `/api/prompts/:id/duplicate` | ทำสำเนา |
+| `GET` | `/api/brands` | รายการ Brand Kit |
+| `POST` | `/api/brands` | เพิ่ม Brand Kit |
+| `PATCH` | `/api/brands/:id` | แก้ไข |
+| `DELETE` | `/api/brands/:id` | ลบ |
+| `POST` | `/api/boost` | ขัดเกลาพรอมป์ด้วย AI (ต้องมี key) |
 
-ตัวอย่าง
+### ตัวอย่าง
 
-```powershell
-curl http://localhost:8787/api/health
+```bash
+# สมัครสมาชิก
+curl -i -X POST http://localhost:8787/api/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Napa","email":"napa@studio.co","password":"promptroom123"}'
+
+# สร้างพรอมป์ (ใช้ cookie จาก response ก่อนหน้า)
+curl -X POST http://localhost:8787/api/generate \
+  -H 'Content-Type: application/json' \
+  -H 'x-workspace: demo' \
+  -b 'pr_session=...' \
+  -d '{"input":{"brief":"ภาพสินค้าเซรั่มจากพืชพรรณไทย","task":"image","tool":"midjourney","style":"editorial"}}'
 ```
+
+### Validation & Rate limits
+
+- ข้อมูลผิดรูปแบบ → `400` พร้อมข้อความภาษาไทย
+- JSON ผิดรูปแบบ → `400`, body เกิน 1MB → `413`
+- `/api/generate` 30 ครั้ง/นาที
+- `/api/generate/preview` 60 ครั้ง/นาที
+- `/api/boost` 12 ครั้ง/นาที
+- `/api/auth/*` 20 ครั้ง/นาที
+- เกิน limit → `429` พร้อม header `Retry-After`
+
+Rate limit แยกตาม **IP + workspace** และเก็บใน memory (รีเซ็ตเมื่อรีสตาร์ท)
 
 ---
 
-## ข้อมูลและฐานข้อมูล
+## 🗄️ ข้อมูลและการสำรอง
 
-- ฐานข้อมูล: `data/promptroom.db` (SQLite ผ่าน `node:sqlite`)
-- Workspace เริ่มต้น `demo` จะถูก seed ตัวอย่างให้อัตโนมัติ
-- ลบไฟล์ฐานข้อมูลเพื่อเริ่มใหม่ได้ แต่จะเสียรายการที่บันทึกไว้
-- `data/control-center.json` เก็บโหมดและ auto-restart ของ Control Center
+- ฐานข้อมูล: `data/promptroom.db` (SQLite WAL)
+- ตาราง: `prompts`, `brands`, `users`, `sessions`
+- บัญชีใหม่ถูก seed พร้อมพรอมป์ 4 รายการและ Brand Kit 3 ชุด
 
-### สำรองข้อมูล
-
-```powershell
-npm run backup          # เก็บ 14 ชุดล่าสุดใน data/backups/
+```bash
+npm run backup              # เก็บ 14 ชุดล่าสุด
 node scripts/backup-db.mjs 30
 ```
 
 สคริปต์ใช้ `VACUUM INTO` จึงได้ snapshot ที่ consistent แม้เซิร์ฟเวอร์กำลังทำงาน
 
-ตั้งเวลาบน Windows Task Scheduler หรือ cron:
-
-```cron
-0 2 * * * cd /srv/promptroom && node scripts/backup-db.mjs 14
-```
-
-กู้คืน: หยุดเซิร์ฟเวอร์ → คัดลอกไฟล์สำรองมาทับ `data/promptroom.db` (ลบ `-wal`/`-shm` เก่าด้วย) → เริ่มเซิร์ฟเวอร์ใหม่
+**กู้คืน:** หยุดเซิร์ฟเวอร์ → คัดลอกไฟล์สำรองทับ `data/promptroom.db` (ลบ `-wal`/`-shm` เก่าด้วย) → เริ่มใหม่
 
 ---
 
-## ขึ้นโฮสต์จริง
+## 🧪 การทดสอบ
+
+```bash
+npm run typecheck
+npm test
+npm run build
+```
+
+ชุดทดสอบครอบคลุม:
+
+- public routes และการป้องกัน `401` ของ protected routes
+- validation ของการสมัคร (อีเมลซ้ำ, รหัสสั้น)
+- login สำเร็จ/ล้มเหลว และ `/api/auth/me`
+- การแยกข้อมูลระหว่างบัญชี (cross-account isolation)
+- prompt lifecycle: create → list → read → patch → duplicate → delete
+- brand lifecycle และการ normalize พาเลตต์
+- seed data ของบัญชีใหม่
+- malformed JSON, body validation และ rate limit `429`
+- AI Boost ตอบ `503` เมื่อไม่มี key
+
+ผลล่าสุด: **19/19 ผ่าน**
+
+---
+
+## 🚢 ขึ้น Production
 
 ### 1. เตรียม environment
 
@@ -252,11 +433,11 @@ NODE_ENV=production
 PORT=8787
 HOST=0.0.0.0
 DATA_DIR=/srv/promptroom/data
-OPENAI_API_KEY=            # ไม่ใส่ก็ได้
+COOKIE_SECURE=1
+OPENAI_API_KEY=          # ไม่ใส่ก็ได้
 ```
 
-- ต้องมี **persistent disk** mount ที่ `DATA_DIR`
-- ใช้ Node.js 24+ (ต้องมี `node:sqlite`)
+ต้องมี **persistent disk** mount ที่ `DATA_DIR` และใช้ Node.js 24+
 
 ### 2. Build และรัน
 
@@ -267,11 +448,15 @@ npm test
 npm start
 ```
 
-ตรวจ SPA fallback ว่า deep link เปิดได้: `/studio`, `/library?prompt=<id>`
+### 3. Docker
 
-### 3. Process manager
+```bash
+docker build -t promptroom .
+docker run -d --name promptroom -p 127.0.0.1:8787:8787 \
+  -v promptroom-data:/app/data --env-file .env promptroom
+```
 
-**PM2**
+### 4. PM2
 
 ```bash
 npm i -g pm2
@@ -280,7 +465,7 @@ pm2 save
 pm2 startup
 ```
 
-**systemd** (ตัวอย่าง `/etc/systemd/system/promptroom.service`)
+### 5. systemd
 
 ```ini
 [Unit]
@@ -297,24 +482,15 @@ Environment=NODE_ENV=production
 Environment=PORT=8787
 Environment=HOST=127.0.0.1
 Environment=DATA_DIR=/srv/promptroom/data
+Environment=COOKIE_SECURE=1
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-**Docker**
+### 6. Reverse proxy + HTTPS
 
-```bash
-docker build -t promptroom .
-docker run -d --name promptroom -p 127.0.0.1:8787:8787 \
-  -v promptroom-data:/app/data --env-file .env promptroom
-```
-
-### 4. Reverse proxy + HTTPS
-
-ให้ Node ฟังเฉพาะ `127.0.0.1` แล้วให้ Caddy/Nginx เป็นหน้าบ้าน
-
-Caddy:
+**Caddy**
 
 ```caddyfile
 prompt.example.com {
@@ -323,7 +499,7 @@ prompt.example.com {
 }
 ```
 
-Nginx:
+**Nginx**
 
 ```nginx
 server {
@@ -336,40 +512,112 @@ server {
     proxy_set_header Host $host;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_read_timeout 90s;   # AI Boost มี timeout 45s
+    proxy_read_timeout 90s;
   }
 }
 ```
 
-### 5. ความปลอดภัย
-
-- **ห้าม deploy `control-center/`** ขึ้นเซิร์ฟเวอร์สาธารณะ — มันสั่ง start/stop process ได้
-- Control Center ผูกกับ `127.0.0.1` เสมอ ถ้าต้องเข้าจากเครื่องอื่นให้ใช้ SSH tunnel
-- เปิด HTTPS และตั้ง backup รายวัน
-- จำกัดขนาด body ที่ reverse proxy ให้สอดคล้องกับ 1MB ของแอป
-
-แพลตฟอร์มที่รองรับ Node.js 24+ และ persistent disk เช่น VPS, Railway, Render, Fly.io
+แพลตฟอร์มที่รองรับ Node.js 24+ และ persistent disk: VPS, Railway, Render, Fly.io
 
 ---
 
-## แก้ปัญหาที่พบบ่อย
+## 🎛️ Local Control Center
 
-**พอร์ต 8787 ถูกยึด**
+สำหรับเครื่อง developer เท่านั้น — ผูกกับ `127.0.0.1` เสมอ
 
-```powershell
-Get-NetTCPConnection -LocalPort 8787 -State Listen | Select-Object OwningProcess
+```bash
+npm run control
 ```
 
-หรือกด **Kill port owner** ใน Control Center
+เปิด **http://localhost:9090**
 
-**ขึ้น `Cannot find module 'node:sqlite'`**
-อัพเกรด Node.js เป็น 24 ขึ้นไป
+- Start / Stop / Restart / Force Stop process tree
+- Build production และ stream log
+- Live logs ผ่าน SSE พร้อม filter / auto-scroll / download
+- Preflight ตรวจ Node, dist, สิทธิ์เขียน data, พอร์ต, health API, `.env`
+- Auto-restart เมื่อโปรเซสล้ม (สูงสุด 3 ครั้ง)
+- Activity history ของทุกคำสั่ง
 
-**เปิดเว็บแล้วเจอ 404 / หน้าว่าง**
-ยังไม่มี `dist/` ให้รัน `npm run build` ก่อน `npm start`
+> [!WARNING]
+> อย่าเปิด Control Center สู่อินเทอร์เน็ต — ถ้าต้องเข้าจากเครื่องอื่นให้ใช้ SSH tunnel
 
-**ฟอนต์ไม่โหลด**
-หน้าเว็บเรียก Google Fonts ต้องต่ออินเทอร์เน็ต ถ้าออฟไลน์ให้โหลดไฟล์ Prompt มา host เองแล้วแก้ `@font-face`
+---
 
-**AI Boost ขึ้น 503**
-ยังไม่ได้ตั้ง `OPENAI_API_KEY` ใน `.env` แล้วรีสตาร์ทเซิร์ฟเวอร์
+## 🎨 Design Language
+
+| Token | ค่า | ใช้ที่ |
+| --- | --- | --- |
+| Cream | `#f2efe7` | พื้นหลังหลัก |
+| Paper | `#faf8f2` / `#f5f2ea` | การ์ดและ surface |
+| Ink | `#111111` | ตัวอักษรและ CTA หลัก |
+| Accent | `#ff4a1c` | ไฮไลต์และปุ่มสำคัญ |
+| Lime | `#d8ff4f` | สถานะพร้อมใช้และ decorative |
+| Line | `rgba(17,17,17,.14)` | เส้นแบ่งและ border |
+
+- ฟอนต์ **Prompt** ทั้งเว็บ รวมถึง code block
+- ระยะห่างแบบ editorial, เส้น grid, ตัวเลขใหญ่ และมุมเหลี่ยมเล็กน้อย
+- Artwork เป็น SVG deterministic จาก seed — ไม่ต้องโหลดรูปจากภายนอก
+
+---
+
+## 🗺️ Roadmap
+
+- [x] Prompt engine ครบชุด (master, routes, shot list, negative, tool params)
+- [x] Authentication และ per-user workspace isolation
+- [x] Library, Templates, Brands, Guide และ Command Palette
+- [x] Export Markdown / JSON / CSV / TXT
+- [x] Integration tests และ rate limiting
+- [x] Docker, PM2, systemd และ backup script
+- [ ] Prompt versioning และ diff ระหว่างเวอร์ชัน
+- [ ] Image reference board
+- [ ] Batch generate
+- [ ] Team roles & permissions
+- [ ] Custom tool presets
+- [ ] PDF export
+
+---
+
+## 🩺 แก้ปัญหาที่พบบ่อย
+
+| อาการ | วิธีแก้ |
+| --- | --- |
+| `Cannot find module 'node:sqlite'` | อัปเกรด Node.js เป็น 24 ขึ้นไป |
+| เปิดเว็บแล้ว 404 / หน้าว่าง | ยังไม่มี `dist/` — รัน `npm run build` ก่อน `npm start` |
+| พอร์ต 8787 ถูกยึด | `Get-NetTCPConnection -LocalPort 8787 -State Listen` หรือใช้ Kill port owner ใน Control Center |
+| ล็อกอินแล้วเด้งกลับ `/auth` | ตรวจว่า cookie ไม่ถูกบล็อก และใช้ origin เดียวกัน |
+| Session หายหลัง deploy | ยังไม่ได้ตั้ง `COOKIE_SECURE=1` บน HTTPS หรือไม่มี persistent disk |
+| AI Boost ขึ้น 503 | ยังไม่ได้ตั้ง `OPENAI_API_KEY` แล้วรีสตาร์ทเซิร์ฟเวอร์ |
+| ฟอนต์ไม่โหลด | หน้าเว็บเรียก Google Fonts — ต้องต่ออินเทอร์เน็ต หรือ host ฟอนต์เอง |
+
+---
+
+## 🤝 Contributing
+
+1. Fork repository
+2. สร้าง branch ใหม่: `git checkout -b feat/your-feature`
+3. Commit: `git commit -m "feat: add your feature"`
+4. Push และเปิด Pull Request
+
+ก่อนส่ง PR กรุณารัน:
+
+```bash
+npm run typecheck && npm test && npm run build
+```
+
+---
+
+## 📄 License
+
+Released under the **GNU General Public License v3.0** — ดูรายละเอียดใน [LICENSE](LICENSE)
+
+---
+
+<div align="center">
+
+<img src="docs/banner.svg" alt="PROMPTROOM" width="100%" />
+
+**PROMPTROOM®** — brief in, system out.
+
+สร้างโดยทีมครีเอทีฟ สำหรับทีมครีเอทีฟ · ภาษาไทย 100%
+
+</div>

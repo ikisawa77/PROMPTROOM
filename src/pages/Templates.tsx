@@ -17,6 +17,7 @@ import { generatePrompt } from '../../shared/engine'
 import { api, STUDIO_STORAGE_KEY } from '../lib/api'
 import { copyText } from '../lib/utils'
 import ArtTile from '../components/ArtTile'
+import Illustration from '../components/Illustration'
 import { useToast } from '../components/Toast'
 import Modal from '../components/ui/Modal'
 import ToolIcon from '../components/ToolIcon'
@@ -140,7 +141,7 @@ export default function Templates() {
 
         {filtered.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-mark">∅</div>
+            <Illustration scene="search" className="empty-illustration" />
             <h2>ไม่พบเทมเพลตที่ตรงกับคำค้น</h2>
             <p>ลองใช้คำสั้นลง หรือเลือกหมวดอื่นจากตัวกรองด้านบน</p>
             {hasFilter && (

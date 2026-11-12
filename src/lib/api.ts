@@ -63,6 +63,7 @@ function workspace() {
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(path, {
     ...options,
+    credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
       'x-workspace': workspace(),
@@ -71,6 +72,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   })
   const data = (await response.json().catch(() => ({}))) as T & { error?: string }
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('promptroom:unauthorized'))
+    }
     throw new Error(data.error || `คำขอไม่สำเร็จ (${response.status})`)
   }
   return data
